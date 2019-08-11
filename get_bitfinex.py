@@ -53,11 +53,10 @@ def GetBittrexHistory():
     for i in d['result']:
         if mycol.count_documents({'Id': i['Id']}) == 0:
             mycol.insert_one(i)
-        else:
-            print("Exists",i['Id'])
 
 
-def GetBittrexHistory():
+
+def GetBittrexOrder():
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["bitfinex"]
     mycol = mydb["orderbook"]
@@ -70,8 +69,37 @@ def GetBittrexHistory():
     mycol.insert_one(d)
 
 
+def GetBinanceOrder():
+
+
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["binance"]
+    mycol = mydb["orderbook"]
+
+    t = datetime.datetime.utcnow()
+    d = json.loads(GetPageText('https://www.binance.com/api/v1/depth?symbol=BTCUSDT'))
+    d['time'] = t
+    mycol.insert_one(d)
+
+
+def GetBinanceHistory():
+    d = json.loads(GetPageText('https://www.binance.com/api/v1/trades?symbol=BTCUSDT'))
+
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["binance"]
+    mycol = mydb["mhistory"]
+
+    for i in d:
+        if mycol.count_documents({'id': i['id']}) == 0:
+            mycol.insert_one(i)
+
+
+
+
+GetBinanceOrder()
+GetBinanceHistory()
 GetBittrexHistory()
-GetBittrexHistory()
+GetBittrexOrder()
 print('ok -',datetime.datetime.utcnow())
 
 
